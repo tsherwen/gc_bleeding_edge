@@ -846,7 +846,7 @@
 
       ! We have already gone thru one chemistry iteration
       FIRSTCHEM = .FALSE. 
-         
+
       END SUBROUTINE CHEMSULFATE
 !EOC
 #if defined( TOMAS )
@@ -2696,6 +2696,7 @@
       REAL(fp)              :: AlkA,   AlkC
       REAL(fp)              :: Kt1,    Kt2,     AREASS1, AREASS2
       REAL(fp)              :: PSO4E,  PSO4F,   Kt1N,    Kt2N
+      REAL(fp)              :: Kt2Nx
       REAL(fp)              :: XX
       REAL(fp)              :: HPLUS,  SO4nss, TNH3,   TNO3,  GNO3, ANIT
       REAL(fp)              :: LSTOT,  ALKdst, ALKss,  ALKds, NH3
@@ -2804,7 +2805,7 @@
 !$OMP+PRIVATE( I, J, L, SO20, H2O20, O3, PATM, TK, K0, M, KK, F1, RK1  )
 !$OMP+PRIVATE( RK2, RK, RKT, SO2_cd, L1, Ld, L2, L2S, L3, L3S, FC, LWC )
 !$OMP+PRIVATE( KaqH2O2, KaqO3, ALK, ALK1, ALK2                         )
-!$OMP+PRIVATE( Kt1, Kt2, AREASS1, AREASS2, SO2_ss, Kt1N, Kt2N          )
+!$OMP+PRIVATE( Kt1, Kt2, AREASS1, AREASS2, SO2_ss, Kt1N, Kt2N, Kt2Nx   )
 !$OMP+PRIVATE( PSO4E, PSO4F, XX                                        )
 !$OMP+PRIVATE( HPLUS, SO4nss, TNH3, TNO3,  GNO3, ANIT,   LSTOT, ALKdst )
 !$OMP+PRIVATE( ALKds, ALKss,  NH3,  SSCvv, aSO4, SO2_sr, SR,    TANIT  )
@@ -2925,10 +2926,17 @@
 
          ! Get alkalinity of accum (ALK1) and coarse (ALK2) [kg]
          CALL GET_ALK( am_I_Root, I, J, L, ALK1, ALK2, Kt1, Kt2,  
-     &                 Kt1N, Kt2N, Input_Opt, State_Met, State_Chm, RC )
+     &                 Kt1N, Kt2N, Kt2Nx, Input_Opt, State_Met, 
+     &                 State_Chm, RC )
 
          ! Total alkalinity [kg]
          ALK = ALK1 + ALK2
+
+         ! Initialize NFLUXSAVE
+         ! NFLUXSAVE=exp (-Kt2Nx *dtchem)),
+         ! so initialize NFLUXSAVE to 1 because Kt2nx=0
+
+         State_Chm%NFLUXSAVE(I,J,L) = 1.e+0_fp
 
          ! If (1) there is alkalinity, (2) there is SO2 present, and 
          ! (3) O3 is in excess, then compute seasalt SO2 chemistry
@@ -2941,7 +2949,7 @@
             CALL SEASALT_CHEM( I,         J,          L,        
      &                         ALK1,      ALK2,       SO2_cd,     
      &                         Kt1,       Kt2,        Kt1N,      
-     &                         Kt2N,      SO2_ss,     PSO4E,  
+     &                         Kt2N,      Kt2Nx,     SO2_ss,     PSO4E,  
      &                         PSO4F,     AlkA,       AlkC,     
      &                         am_I_Root, Input_Opt,  State_Met, 
      &                         State_Chm, State_Diag, FullRun,    
@@ -4028,7 +4036,7 @@
       SUBROUTINE SEASALT_CHEM ( I,         J,          L,
      &                          ALK1,      ALK2,       SO2_cd,
      &                          Kt1,       Kt2,        Kt1N,
-     &                          Kt2N,      SO2_ss,     PSO4E,
+     &                          Kt2N,      Kt2Nx,      SO2_ss,    PSO4E,
      &                          PSO4F,     AlkA,       AlkC,
      &                          am_I_Root, Input_Opt,  State_Met,
      &                          State_Chm, State_Diag, FullRun,
@@ -4067,6 +4075,7 @@
                                                  !  salt aerosols from GET_ALK 
                                                  !  (1=fine; 2=coarse)
       REAL(fp),       INTENT(IN)   :: Kt1N, Kt2N 
+      REAL(fp),       INTENT(IN)   :: Kt2Nx 
       REAL(fp),       INTENT(IN)   :: ALK1, ALK2 ! Alkalinity [kg] from 
                                                  !  seasalt_mod
       TYPE(MetState), INTENT(IN)   :: State_Met  ! Meteorology State object
@@ -4155,6 +4164,7 @@
       REAL(fp)            :: HNO3_EQ_C,   L6A,        L6C   
       REAL(fp)            :: C_FLUX_A,    C_FLUX_C,   C_FLUX
       REAL(fp)            :: HNO3_ss,     HNO3_kg
+      REAL(fp)             :: L6Cx
       !REAL(fp)            :: MW_SAL1,     MW_SAL2  ! for salinity/alkalinity
       
       ! Pointers          
@@ -4241,12 +4251,14 @@
 
       ! Available flux of HNO3 to coarse sea salt aerosols [v/v/timestep]
       L6C = EXP( - Kt2N * DTCHEM )
+      L6Cx = EXP( - Kt2Nx * DTCHEM )
       F_HNO3_C = HNO3_vv * ( 1.e+0_fp - L6C )
       F_HNO3_C = MAX( F_HNO3_C, 1.0e-32_fp )
 
       ! convert to [eq/timestep]
       ! Remove species molecular weight from equation (bmy, 2/10/17)
       N_FLUX_C = ( F_HNO3_C * AD(I,J,L) / AIRMW ) * 1000.0_fp
+      State_Chm%NFLUXSAVE(I,J,L) = L6Cx
 
       ! Total flux of HNO3
       F_HNO3 = F_HNO3_A + F_HNO3_C ![v/v/timestep]
@@ -4409,10 +4421,13 @@
          ! Remove species molecular weights from equation (bmy, 2/10/17)
          HNO3_ss = ( HNO3_SSC * AIRMW / AD(I,J,L) ) / 1000.0_fp
 
-         If (FullRun) Then
-            ! Store back into the species array
-            Spc(I,J,L,id_HNO3) = MAX( HNO3_vv - HNO3_ss, MINDAT )
-         End If
+
+!         ! Comment out next line because actual HNO3 uptake
+!         ! on SSC is calculated in isoropia
+!         If (FullRun) Then
+!            ! Store back into the species array
+!            Spc(I,J,L,id_HNO3) = MAX( HNO3_vv - HNO3_ss, MINDAT )
+!         End If
 
       ELSE
 
@@ -4449,11 +4464,16 @@
       
 
       ! NITS produced converted from [eq/timestep] to [v/v/timestep] 
+
       ! Remove species molecular weight from equation (bmy, 2/10/17)
       !
       ! NOTE: This new equation will correct the prior 2X overestimate 
       ! caused  by switching the MW of NITs from 62 to 31.4 (bmy, 2/10/17)
-      PNITs(I,J,L) = ( HNO3_SSC * AIRMW / AD(I,J,L) ) / 1000.0_fp
+      ! Now set PNITs to 0 because actual HNO3 uptake
+      ! on SSC is calculated in isoropia
+!      PNITs(I,J,L) = ( HNO3_SSC * AIRMW / AD(I,J,L) ) / 1000.0_fp
+      PNITs(I,J,L) = 0.0e+0_fp
+	 
 
       ! Modified accum alkalinity 
       ALKA         = EQ1 - (SO4E + HNO3_SSA)
@@ -7724,8 +7744,8 @@
 ! !INTERFACE:
 !
       SUBROUTINE GET_ALK( am_I_Root, I,J,L, ALK1, ALK2, Kt1, Kt2, 
-     &                    Kt1N, Kt2N, Input_Opt, State_Met, State_Chm,
-     &                    RC)
+     &                    Kt1N, Kt2N, Kt2Nx, Input_Opt, State_Met, 
+     &                    State_Chm, RC)
 !
 ! !USES:
 !
@@ -7751,6 +7771,7 @@
 !
       REAL(fp),       INTENT(OUT)   :: ALK1, ALK2  ! [kg]
       REAL(fp),       INTENT(OUT)   :: Kt1, Kt2, Kt1N, Kt2N ! [s-1]
+      REAL(fp),       INTENT(OUT)   :: Kt2Nx ! [s-1]
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
@@ -7805,9 +7826,16 @@
       INTEGER             :: NTOP
       LOGICAL             :: FOUND
 
+
       ! Pointers
       REAL(fp), POINTER   :: ERADIUS(:,:,:,:)
       REAL(fp), POINTER   :: TAREA(:,:,:,:)
+
+      ! Alkalinity bugfix (JAS 9/30/15)
+      INTEGER     :: JLOOP
+      REAL(fp)    :: SA1, SA2, R1, R2
+      REAL(fp)    :: lambda, knud
+      REAL(fp)    :: KT2Nx1, KT2Nx2, Nx2
  
       !=================================================================
       ! GET_ALK begins here!
@@ -7818,6 +7846,7 @@
       KT2   = 0.e+0_fp
       KT1N  = 0.e+0_fp
       KT2N  = 0.e+0_fp
+      KT2Nx = 0.e+0_fp
       N1    = 0.e+0_fp
       N2    = 0.e+0_fp
       ALK1  = 0.e+0_fp
@@ -7932,14 +7961,14 @@
 	 ! calculate gas-to-particle rate constant for uptake of 
 	 ! SO2 onto fine sea-salt aerosols [Jacob, 2000] analytical solution
          CONST1 = 4.e+0_fp/(V*GAMMA_SO2)
-         !A1     = (RAD1/DG)+CONST1
-         !B1     = (RAD2/DG)+CONST1
-         !TERM1A = ((B1**2)/2.0e+0_fp) - ((A1**2)/2.0e+0_fp)
-         !TERM2A = 2.e+0_fp*CONST1*(B1-A1)
-         !TERM3A = (CONST1**2)*LOG(B1/A1)
-         !KT1    = 4.e+0_fp*PI*N1*(DG**3)*(TERM1A - TERM2A + TERM3A)
-         ! now calculate rate of uptake as kt = [SSA]/( r/Dg + 4/(v*gamma) )
-         KT1    = SA1/((R1/DG) + CONST1)
+         A1     = (RAD1/DG)+CONST1
+         B1     = (RAD2/DG)+CONST1
+         TERM1A = ((B1**2)/2.0e+0_fp) - ((A1**2)/2.0e+0_fp)
+         TERM2A = 2.e+0_fp*CONST1*(B1-A1)
+         TERM3A = (CONST1**2)*LOG(B1/A1)
+         KT1    = 4.e+0_fp*PI*N1*(DG**3)*(TERM1A - TERM2A + TERM3A)
+         KT1    = KT1/(RAD2-RAD1)
+         !KT1    = SA1/((R1/DG) + CONST1)
 
          !----------------------------------
          ! SO2 uptake onto coarse particles 
@@ -7948,13 +7977,14 @@
 	 ! calculate gas-to-particle rate constant for uptake of 
 	 ! SO2 onto coarse sea-salt aerosols [Jacob, 2000] analytical solution
          CONST2 = 4.e+0_fp/(V*GAMMA_SO2)
-         !A2     = (RAD2/DG)+CONST2
-         !B2     = (RAD3/DG)+CONST2
-         !TERM1B = ((B2**2)/2.0e+0_fp) - ((A2**2)/2.0e+0_fp)
-         !TERM2B = 2.e+0_fp*CONST2*(B2-A2)
-         !TERM3B = (CONST2**2)*LOG(B2/A2)
-         !KT2    = 4.e+0_fp*PI*N2*(DG**3)*(TERM1B - TERM2B + TERM3B)
-         KT2    = SA2/((R2/DG) + CONST2)
+         A2     = (RAD2/DG)+CONST2
+         B2     = (RAD3/DG)+CONST2
+         TERM1B = ((B2**2)/2.0e+0_fp) - ((A2**2)/2.0e+0_fp)
+         TERM2B = 2.e+0_fp*CONST2*(B2-A2)
+         TERM3B = (CONST2**2)*LOG(B2/A2)
+         KT2    = 4.e+0_fp*PI*N2*(DG**3)*(TERM1B - TERM2B + TERM3B)
+         KT2    = KT2/(RAD3-RAD2)
+         !KT2    = SA2/((R2/DG) + CONST2)
          KT     = KT1 + KT2
 
          !----------------------------------
@@ -7964,13 +7994,14 @@
          ! calculate gas-to-particle rate constant for uptake of 
          ! HNO3 onto fine sea-salt aerosols [Jacob, 2000] analytical solution
          CONST1N = 4.e+0_fp/(V*GAMMA_HNO3)
-         !A1N     = (RAD1/DG)+CONST1N
-         !B1N     = (RAD2/DG)+CONST1N
-         !TERM1AN = ((B1N**2)/2.0e+0_fp) - ((A1N**2)/2.0e+0_fp)
-         !TERM2AN = 2.e+0_fp*CONST1N*(B1N-A1N)
-         !TERM3AN = (CONST1N**2)*LOG(B1N/A1N)
-         !KT1N    = 4.e+0_fp*PI*N1*(DG**3)*(TERM1AN - TERM2AN + TERM3AN)
-         KT1N    = SA1/((R1/DG) + CONST1N)
+         A1N     = (RAD1/DG)+CONST1N
+         B1N     = (RAD2/DG)+CONST1N
+         TERM1AN = ((B1N**2)/2.0e+0_fp) - ((A1N**2)/2.0e+0_fp)
+         TERM2AN = 2.e+0_fp*CONST1N*(B1N-A1N)
+         TERM3AN = (CONST1N**2)*LOG(B1N/A1N)
+         KT1N    = 4.e+0_fp*PI*N1*(DG**3)*(TERM1AN - TERM2AN + TERM3AN)
+         KT1N    = KT1N/(RAD2-RAD1)
+         !KT1N    = SA1/((R1/DG) + CONST1N)
 
          !----------------------------------
          ! HNO3 uptake onto coarse particles 
@@ -7979,13 +8010,21 @@
 	 ! calculate gas-to-particle rate constant for uptake of 
 	 ! HNO3 onto coarse sea-salt aerosols [Jacob, 2000] analytical solution
          CONST2N = 4.e+0_fp/(V*GAMMA_HNO3)
-         !A2N     = (RAD2/DG)+CONST2N
-         !B2N     = (RAD3/DG)+CONST2N
-         !TERM1BN = ((B2N**2)/2.0e+0_fp) - ((A2N**2)/2.0e+0_fp)
-         !TERM2BN = 2.e+0_fp*CONST2N*(B2N-A2N)
-         !TERM3BN = (CONST2N**2)*LOG(B2N/A2N)
-         !KT2N    = 4.e+0_fp*PI*N2*(DG**3)*(TERM1BN - TERM2BN + TERM3BN)
-         KT2N    = SA2/((R2/DG) + CONST2N)
+         A2N     = (RAD2/DG)+CONST2N
+         B2N     = (RAD3/DG)+CONST2N
+         TERM1BN = ((B2N**2)/2.0e+0_fp) - ((A2N**2)/2.0e+0_fp)
+         TERM2BN = 2.e+0_fp*CONST2N*(B2N-A2N)
+         TERM3BN = (CONST2N**2)*LOG(B2N/A2N)
+         KT2N    = 4.e+0_fp*PI*N2*(DG**3)*(TERM1BN - TERM2BN + TERM3BN)
+         KT2N    = KT2N/(RAD3-RAD2)
+         !KT2N    = SA2/((R2/DG) + CONST2N)
+         lambda=3.e+0_fp*DG/V
+         knud=lambda/R2
+         KT2Nx1 = 0.75e+0_fp*GAMMA_HNO3*(1.e+0_fp+knud)
+         KT2Nx2 = knud*knud+knud+0.283e+0_fp*knud*GAMMA_HNO3
+     &           + 0.75e+0_fp*GAMMA_HNO3
+         Nx2 = SA2/(4.e+0_fp*PI*R2*R2)
+         KT2Nx = 4.e+0_fp*PI*R2*Nx2*DG*KT2Nx1/KT2Nx2
 
 
       ELSE
@@ -7997,6 +8036,7 @@
          KT1N = 0.e+0_fp
          KT2  = 0.e+0_fp
          KT2N = 0.e+0_fp
+         KT2Nx = 0.e+0_fp
 
       ENDIF
 

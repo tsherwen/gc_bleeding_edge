@@ -102,6 +102,8 @@ MODULE State_Chm_Mod
      !----------------------------------------------------------------------
      REAL(fp),          POINTER :: Species    (:,:,:,:) ! Species [molec/cm3]
      CHARACTER(LEN=20)          :: Spc_Units            ! Species units
+     ! For coarse seasalt nitrate uptake
+     REAL(fp),          POINTER :: NFLUXSAVE (:,:,:)
 
      !----------------------------------------------------------------------
      ! Aerosol quantities
@@ -412,6 +414,9 @@ CONTAINS
     State_Chm%SO3_AQ      => NULL()
     State_Chm%fupdateHOBr => NULL()
 
+    ! Field for coarse seasalt nitrare uptake
+    State_Chm%NFLUXSAVE     = 0e+0_fp
+
     ! Local variables
     Ptr2data                => NULL()
 
@@ -697,6 +702,12 @@ CONTAINS
     IF ( RC /= GC_SUCCESS ) RETURN
     State_Chm%Species = 0.0_fp
     CALL Register_ChmField( am_I_Root, chmID, State_Chm%Species, State_Chm, RC )
+
+    !=====================================================================
+    ! Allocate field for coarse seasalt nitrate calculation
+    !=====================================================================
+    ALLOCATE( State_Chm%NFLUXSAVE     ( IM, JM, LM            ), STAT=RC )
+    IF ( RC /= GIGC_SUCCESS ) RETURN
 
     !=======================================================================
     ! Allocate and initialize quantities that are only relevant for the
@@ -1394,6 +1405,12 @@ CONTAINS
     IF ( ASSOCIATED( State_Chm%Species ) ) THEN
        DEALLOCATE( State_Chm%Species, STAT=RC )
        CALL GC_CheckVar( 'State_Chm%Map_Species', 2, RC )
+       RETURN
+    ENDIF
+
+    IF ( ASSOCIATED( State_Chm%NFLUXSAVE ) ) THEN
+       DEALLOCATE( State_Chm%NFLUXSAVE, STAT=RC )
+       CALL GC_CheckVar( 'State_Chm%NFLUXSAVE', 2, RC )
        RETURN
     ENDIF
 

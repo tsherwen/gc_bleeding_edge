@@ -21,6 +21,7 @@
 !
       USE HCO_ERROR_MOD    ! For real precisions (hp)
       USE PRECISION_MOD    ! For GEOS-Chem Precision (fp)
+!      USE CMN_FJX_MOD     ! For nitrate photoslysis (now in integrator)
 
       IMPLICIT NONE
       PRIVATE
@@ -143,6 +144,7 @@
       USE State_Met_Mod,        ONLY : MetState
       USE TIME_MOD,             ONLY : GET_MONTH
       USE TIME_MOD,             ONLY : ITS_A_NEW_MONTH
+      USE TIME_MOD,             ONLY : GET_TS_CHEM
       USE IsorropiaII_Main_Mod, ONLY : Isoropia
 #if defined( BPCH_DIAG )
       USE CMN_DIAG_MOD,         ONLY : LD73,   ND73
@@ -219,9 +221,13 @@
 
       ! Scalars
       INTEGER                  :: I,    J,    L,    N
+
       REAL(fp)                 :: ANO3, GNO3
       REAL(f8)                 :: RHI,  TEMPI, P_Pa
       REAL(fp)                 :: TCA,  TMG,  TK,   HNO3_DEN
+      REAL(fp)                 :: HNO3_CH1, HNO3_CH2
+      REAL(fp)                 :: ZSCALE, ZEXP, NITs_CH
+      REAL(fp)                 :: DTCHEM
       REAL(fp)                 :: TNA,  TCL,  TNH3, TNH4
       REAL(fp)                 :: TNIT, TNO3, TSO4, VOL
       REAL(f8)                 :: AERLIQ(NIONSA+NGASAQA+2)
@@ -357,6 +363,9 @@
 
       ! Point to chemical species array [kg]
       Spc => State_Chm%Species
+
+      ! DTCHEM is the chemistry timestep in seconds
+      DTCHEM = GET_TS_CHEM() * 60e+0_fp
 
       !=================================================================
       ! Loop over grid boxes and call ISOROPIA (see comments in the 
@@ -712,6 +721,160 @@
       ENDDO
       ENDDO
       ENDDO 
+!$OMP END PARALLEL DO
+     
+      ! Coarse mode
+ 
+      STT => State_Chm%Tracers
+
+      !=================================================================
+      ! Loop over grid boxes and call ISOROPIA (see comments in the
+      ! ISOROPIA routine ISOROPIAIICODE.f which describes
+      ! the input/output args)
+      !=================================================================
+
+!$OMP PARALLEL DO
+!$OMP+DEFAULT( SHARED )
+!$OMP+PRIVATE( I,    J,      L,       N,      WI,   WT,  GAS,  TEMPI )
+!$OMP+PRIVATE( RHI,  VOL,    TSO4,    TNH3,   TNA,  TCL, ANO3, GNO3  )
+!$OMP+PRIVATE( TCA,  TMG,    TK,      CNTRL,  SCASI                  )
+!$OMP+PRIVATE( TNO3, AERLIQ, AERSLD,  OTHER,  TNH4, TNIT             )
+!$OMP+PRIVATE( HNO3_CH1, HNO3_CH2     )
+!$OMP+PRIVATE( ZSCALE, ZEXP, NITs_CH  )
+!$OMP+SCHEDULE( DYNAMIC )
+      DO L = 1, LLPAR
+      DO J = 1, JJPAR
+      DO I = 1, IIPAR
+
+         ! Only applying ISORROPIA II in troposphere
+         IF ( ITS_IN_THE_STRATMESO( I, J, L, State_Met ) ) CYCLE
+
+         ! Initialize WI, WT
+         DO N = 1, NCOMPA
+            WI(N) = 0e+0_fp
+            WT(N) = 0e+0_fp
+         ENDDO
+
+         ! Initialize GAS
+         DO N = 1, NGASAQA
+            GAS(N) = 0e+0_fp
+         ENDDO
+         ! Temperature [K]
+         TEMPI    = State_Met%T(I,J,L)
+
+         ! Relative humidity [unitless]
+         RHI      = State_Met%RH(I,J,L) * 1.e-2_fp
+
+         ! Force RH in the range 0.01 - 0.98
+         RHI      = MAX( 0.01e+0_fp, RHI )
+         RHI      = MIN( 0.98e+0_fp, RHI )
+
+         ! Volume of grid box [m3]
+         VOL      = State_Met%AIRVOL(I,J,L)
+
+         !---------------------------------
+         ! Compute quantities for ISOROPIA
+         !---------------------------------
+
+         ! Total SO4 [mole/m3] - SO4s + seasalt SO4 (7.68% by wt)
+         TSO4 = STT(I,J,L,IDTSO4s) * 1.e+3_fp / ( 96.e+0_fp * VOL )
+     &        + STT(I,J,L,IDTSALC) * 0.0768e+0_fp * 1.e+3_fp /
+     &        ( 96.e+0_fp  * VOL  )
+ 
+         ! Total NH3 [mole/m3] - no NH3 uptake by SSC
+         TNH3     = 0e+0_fp
+
+         ! Total Na+ (30.61% by weight of seasalt) [mole/m3]
+         TNA      = STT(I,J,L,IDTSALC) * 0.3061e+0_fp * 1.e+3_fp /
+     &                                 ( 22.99e+0_fp  * VOL  )
+
+         ! Total Cl- (55.04% by weight of seasalt) [mole/m3]
+         TCL      = STT(I,J,L,IDTSALC) * 0.5504e+0_fp * 1.e+3_fp /
+     &                                 ( 35.45e+0_fp  * VOL  )
+         
+         ! Total Ca2+ (1.16% by weight of seasalt) [mole/m3]
+         TCA      = STT(I,J,L,IDTSALC) * 0.0116e+0_fp * 1.d3 /
+     &                                 ( 40.08e+0_fp  * VOL  )
+
+         ! Total K+   (1.1% by weight of seasalt)  [mole/m3]
+         TK       = STT(I,J,L,IDTSALC) * 0.0110e+0_fp * 1.d3 /
+     &                                 ( 39.102e+0_fp * VOL  )
+
+         ! Total Mg+  (3.69% by weight of seasalt) [mole/m3]
+         TMG      = STT(I,J,L,IDTSALC) * 0.0369e+0_fp * 1.d3 /
+     &                                 ( 24.312e+0_fp * VOL  )
+
+         ! Compute gas-phase HNO3 [mole/m3] from HNO3 tracer
+         GNO3  = STT(I,J,L,IDTHNO3)
+         GNO3  = MAX( GNO3 * 1.e+3_fp / ( 63.e+0_fp * VOL ), CONMIN )
+
+         ! Aerosol-phase NO3 [mole/m3]
+         ANO3  = STT(I,J,L,IDTNITs) * 1.e+3_fp / ( 62.e+0_fp * VOL )
+
+         ! Total NO3 [mole/m3]
+         TNO3    = GNO3 + ANO3
+
+         !---------------------------------
+         ! Call ISOROPIA
+         !---------------------------------
+
+         ! set type of ISOROPIA call
+         ! Forward problem, do not change this value
+         ! 0e+0_fp represents forward problem
+         CNTRL(1) = 0.0e+0_fp
+         ! Metastable for now
+         ! 1e+0_fp represents metastable problem
+         CNTRL(2) = 1.0e+0_fp
+
+         ! Insert concentrations [mole/m3] into WI & prevent underflow
+         WI(1)    = MAX( TNA,  CONMIN )
+         WI(2)    = MAX( TSO4, CONMIN )
+         WI(3)    = MAX( TNH3, CONMIN )
+         WI(4)    = MAX( TNO3, CONMIN )
+         WI(5)    = MAX( TCL,  CONMIN )
+         WI(6)    = MAX( TCA,  CONMIN )
+         WI(7)    = MAX( TK,   CONMIN )
+         WI(8)    = MAX( TMG,  CONMIN )
+
+         ! Perform aerosol thermodynamic equilibrium
+         ! ISOROPIA can be found in ISOROPIAIICODE.f
+         ! inputs are WI, RHI, TEMPI, CNTRL
+         CALL ISOROPIA (WI,    RHI,  TEMPI,  CNTRL,
+     &                  WT,    GAS,  AERLIQ, AERSLD,
+     &                  SCASI, OTHER)
+
+         ! Calculate change in equiv
+         HNO3_CH1 = (STT(I,J,L,IDTHNO3)/63.e-3_fp - VOL*GAS(2))
+     &               * (1.e+0_fp - State_Chm%NFLUXSAVE(I,J,L))
+         HNO3_CH2=MAX( HNO3_CH1, CONMIN)
+
+         ! Calculate change in kg
+         STT(I,J,L,IDTHNO3) = STT(I,J,L,IDTHNO3)
+     &                      - HNO3_CH2*63.e-3_fp
+         STT(I,J,L,IDTHNO3) = MAX( STT(I,J,L,IDTHNO3), CONMIN)
+         STT(I,J,L,IDTNITs) = STT(I,J,L,IDTNITs)
+     &                         + HNO3_CH2*62.e-3_fp
+         STT(I,J,L,IDTNITs) = MAX( STT(I,J,L,IDTNITs), CONMIN)
+
+! TMS (18/07/11) - Comment out the NITs photolysis secetion below
+! nitrate photolysis is now considered within the integrator 
+! (and not in the main code branch)
+!! Calculate photolysis loss of NITs in moles
+!! yielding 66.7% HNO2 and 33.3% NO2
+!! ZSCALE is scaling factor applied to JHNO3
+!         ZSCALE= 10.0e+0_fp
+!         ZEXP = exp(-ZSCALE*ZPJ(l,16,i,j)*DTCHEM)
+!         NITs_CH = STT(I,J,L,IDTNITs)/62.e-3_fp
+!     &           * (1.0e+0_fp - ZEXP)
+!         STT(I,J,L,IDTNITs)=STT(I,J,L,IDTNITs)*ZEXP
+!         STT(I,J,L,IDTHNO2)=STT(I,J,L,IDTHNO2)
+!     &                     + 0.667e+0_fp*NITs_CH*47.0e-3_fp
+!         STT(I,J,L,IDTNO2)=STT(I,J,L,IDTNO2)
+!     &                     + 0.333e+0_fp*NITs_CH*46.0e-3_fp
+
+      ENDDO
+      ENDDO
+      ENDDO
 !$OMP END PARALLEL DO
 
       ! Free pointer

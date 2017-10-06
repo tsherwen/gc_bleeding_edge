@@ -13,8 +13,8 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : gckpp_Global.f90
-! Time                 : Wed Aug 23 13:23:03 2017
-! Working directory    : /n/home05/msulprizio/GC/FlexChem/Mechanisms/v11-02c/Tropchem
+! Time                 : Fri Oct  6 15:59:42 2017
+! Working directory    : /n/home05/msulprizio/GC/Code.v11-02/KPP/Tropchem
 ! Equation file        : gckpp.kpp
 ! Output root filename : gckpp
 ! 
@@ -39,7 +39,7 @@ MODULE gckpp_Global
   REAL(kind=dp) :: FIX(NFIX)
 ! VAR, FIX are chunks of array C
 !      EQUIVALENCE( C(1),VAR(1) )
-!      EQUIVALENCE( C(173),FIX(1) )
+!      EQUIVALENCE( C(232),FIX(1) )
 ! RCONST - Rate constants (global)
   REAL(kind=dp) :: RCONST(NREACT)
 ! TIME - Current integration time
@@ -69,7 +69,7 @@ MODULE gckpp_Global
 
 ! INLINED global variable declarations
 
-      REAL(kind=dp) :: HET(NSPEC,3), PHOTOL(1000)
+      REAL(kind=dp) :: HET(NSPEC,5), PHOTOL(1000)
       REAL(kind=dp) :: NUMDEN, H2O, PRESS
 
 !-----------------------------------------------------------------------

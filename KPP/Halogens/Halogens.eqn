@@ -524,6 +524,9 @@ T163       = IGNORE; {ClNO2}
 T164       = IGNORE; {ClNO2}
 T165       = IGNORE; {ClNO2}
 T166       = IGNORE; {ClNO2}
+T167       = IGNORE; {CHBr3}
+T168       = IGNORE; {CHBr3}
+T169       = IGNORE; {CHBr3}
 
 #DEFFIX
 
@@ -954,7 +957,7 @@ Br + C2H6 = HBr + ETO2 :                     GCARR(2.36E-10, 0.0E+00, -6411.0); 
 Br + C3H8 = HBr + A3O2 :                     GCARR(8.77E-11, 0.0E+00, -4330.0);   {2017/07/27; Parrella2012,Fix C creation; SAS,BHH,MJE}
 Br + NO2 {+M} = BrNO2 {+M} :                 GCJPLPR(4.20E-31, 2.4E+00, 0.0, 2.7E-11, 0.0, 0.0, 0.6, 0.0, 0.0); {2012/06/07; Parrella2012; JPP}
 BrO + NO2 {+M} = BrNO3 {+M} :                GCJPLPR(5.40E-31, 3.1E+00, 0.0, 6.5E-12, 2.9, 0.0, 0.6, 0.0, 0.0); {2017/02/22; JPL 15-10; BHH,MJE}
-CHBr3 + OH = 3.000Br + T150 :                GCARR(9.00E-13, 0.0E+00, -360.0);    {2017/02/22; JPL 15-10; BHH,MJE}
+CHBr3 + OH = 3.000Br + T150 + T168 :         GCARR(9.00E-13, 0.0E+00, -360.0);    {2017/02/22; JPL 15-10; BHH,MJE}
 CH2Br2 + OH = 2.000Br :                      GCARR(2.00E-12, 0.0E+00, -840.0);    {2012/06/07; Parrella2012; JPP}
 CH3Br + OH = Br + H2O + HO2 :                GCARR(1.42E-12, 0.0E+00, -1150.0);   {2017/03/08; JPL 15-10; TS,BHH,MJE}
 HC5 + OH = HC5OO :                           GCARR(3.35E-11, 0.0E+00, 380.0);     {2013/03/22; Paulot2009; FP,EAM,JMAO,MJE}
@@ -1112,7 +1115,7 @@ O1D + CH3Br = 0.440BrO + MO2 + 0.560Br +
 O1D + CH2Br2 = 0.050O + 0.050CH2Br2 +
  0.950BrO + 0.950Br :                        GCARR(2.70E-10, 0.0E+00, 0.0);       {2014/02/03; Eastham2014; SDE}
 O1D + CHBr3 = 0.320O + 0.320CHBr3 +
- 0.680BrO + 1.360Br + T151 :                 GCARR(6.60E-10, 0.0E+00, 0.0);       {2014/02/03; Eastham2014; SDE}
+ 0.680BrO + 1.360Br + T151 + T169 :          GCARR(6.60E-10, 0.0E+00, 0.0);       {2014/02/03; Eastham2014; SDE}
 O1D + HCFC22 = 0.280O + 0.280HCFC22 +
  0.550ClO + 0.170Cl + T117 :                 GCARR(1.02E-10, 0.0E+00, 0.0);       {2017/02/22; JPL 15-10; BHH,MJE}
 O1D + CFC11 = 0.120O + 0.120CFC11 +
@@ -1462,7 +1465,7 @@ HOBr + hv = Br + OH + T042 :                 PHOTOL(32);     {2012/06/07; Parrel
 BrNO3 + hv = Br + NO3 :                      PHOTOL(29);     {2012/06/07; Parrella2012; JPP}
 BrNO3 + hv = BrO + NO2 :                     PHOTOL(30);     {2012/06/07; Parrella2012; JPP}
 BrNO2 + hv = Br + NO2 :                      PHOTOL(31);     {2012/06/07; Parrella2012; JPP}
-CHBr3 + hv = 3.000Br + T149 :                PHOTOL(56);     {2012/06/07; Parrella2012; JPP}
+CHBr3 + hv = 3.000Br + T149 + T167 :         PHOTOL(56);     {2012/06/07; Parrella2012; JPP}
 MPN + hv = CH2O + NO3 + HO2 :                PHOTOL(104);    {2012/02/12; Browne2011; ECB}
 MPN + hv = MO2 + NO2 :                       PHOTOL(105);    {2012/02/12; Browne2011; ECB}
 ISOPND + hv = HC5 + NO2 + HO2 :              PHOTOL(95);     {2013/03/22; Paulot2009; FP,EAM,JMAO,MJE}

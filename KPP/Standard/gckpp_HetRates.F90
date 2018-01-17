@@ -652,10 +652,14 @@ MODULE GCKPP_HETRATES
       !--------------------------------------------------------------------
 
       ! Cloud bisulfite (HSO3-) concentration [mol/l] from sulfate_mod.F
-      HSO3conc_Cld = State_Chm%HSO3_AQ(I,J,L)
+      ! TMS (18/01/16) - switch of QJC's SO2+HOBr reactions
+!      HSO3conc_Cld = State_Chm%HSO3_AQ(I,J,L)
+      HSO3conc_Cld = TINY(1e+0_fp)
 
       ! Cloud sulfite (SO3--) concentration [mol/l] from sulfate_mod.F
-      SO3conc_Cld  = State_Chm%SO3_AQ(I,J,L)
+      ! TMS (18/01/16) - switch of QJC's SO2+HOBr reactions
+!      SO3conc_Cld  = State_Chm%SO3_AQ(I,J,L)
+      SO3conc_Cld = TINY(1e+0_fp)
 
       ! Avoid div-by-zero issues in GAMMA_HOBr_X
       !IF ( HSO3conc_Cld <= 0.0_fp) HSO3conc_Cld = 1e-20_fp

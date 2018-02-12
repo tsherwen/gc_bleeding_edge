@@ -13,8 +13,8 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : gckpp_Initialize.f90
-! Time                 : Thu Jan 25 09:39:28 2018
-! Working directory    : /n/home05/msulprizio/GC/Code.v11-02/KPP/Standard
+! Time                 : Mon Feb 12 14:37:14 2018
+! Working directory    : /work/home/ts551/data/all_model_simulations/iodine_runs/iGEOSChem_6.2/code.tagged/KPP/Standard
 ! Equation file        : gckpp.kpp
 ! Output root filename : gckpp
 ! 

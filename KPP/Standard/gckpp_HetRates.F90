@@ -638,12 +638,20 @@ MODULE GCKPP_HETRATES
       HET(ind_IONITA, 1) = HetIONITA(     MW_IONITA, 1E-1_fp)
       HET(ind_MONITA, 1) = HetMONITA(     MW_MONITA, 1E-1_fp)
 
+      ! TMS DEBUG - print out HET rates
+      WRITE(*,*) 'HET-HO2', I, J, L, HET(ind_HO2,   1)
+      WRITE(*,*) 'HET-NO2', I, J, L, HET(ind_NO2,   1)
+      WRITE(*,*) 'HET-NO3', I, J, L, HET(ind_NO3,   1)
+
       ! Now calculate reaction rates where the educt can be consumed.
       ! kIIR1Ltd: Assume that the first reactant is limiting. Assume that the
       ! second reactant is "abundant" and calculate the overall rate based on
       ! the uptake rate of the first reactant only.
       HET(ind_N2O5,  1) = kIIR1Ltd( spcVec, Ind_('N2O5'), Ind_('H2O'), &
                                     HETN2O5(1.08E2_fp, 1E-1_fp))
+
+      ! TMS DEBUG - print out HET rates
+      WRITE(*,*) 'N2O5+H2O', I, J, L, HET(ind_N2O5,  1)
 
       !--------------------------------------------------------------------
       ! Br/Cl heterogeneous chemistry
@@ -659,6 +667,9 @@ MODULE GCKPP_HETRATES
          kITemp = HETClNO3_JS( XDenA, rLiq, rIce, ALiq, AIce, TempK )
          HET(ind_ClNO3, 1) = kIIR1Ltd( spcVec, Ind_('ClNO3'), Ind_('H2O'), &
                                        kITemp, HetMinLife)
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'BrNO3+H2O', I, J, L, HET(ind_BrNO3, 1)
+         WRITE(*,*) 'ClNO3+H2O', I, J, L, HET(ind_ClNO3, 1)
 
          !----------------------------------------------------------------
          ! HOBr + HBr (TMS index: hhc06)
@@ -668,6 +679,8 @@ MODULE GCKPP_HETRATES
                            brConc_Cld, HSO3conc_Cld, SO3conc_Cld )
          HET(ind_HOBr,  1) = kIIR1Ltd( spcVec, Ind_('HOBr'),  Ind_('HBr'), &
                                        kITemp, HetMinLife)
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'HOBr+HBr', I, J, L, HET(ind_HOBr,  1)
 
          !----------------------------------------------------------------
          ! HOBr + HCl (TMS index: hhc03)
@@ -677,6 +690,8 @@ MODULE GCKPP_HETRATES
                                   brConc_Cld, HSO3conc_Cld, SO3conc_Cld )
          HET(ind_HOBr,  2) = kIIR1Ltd( spcVec, Ind_('HOBr'),  Ind_('HCl'), &
                                        kITemp, HetMinLife)
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'HOBr+HCl', I, J, L, HET(ind_HOBr,  2)
 
          !----------------------------------------------------------------
          ! HOBr + BrSalA/C (TMS index: hhc07/08)
@@ -692,6 +707,9 @@ MODULE GCKPP_HETRATES
                                  hConc_SSC, 0.5e+0_fp, brConc_SSC, 2 )
          HET(ind_HOBr,  5) = kIIR1Ltd( spcVec, Ind_('HOBr'),  Ind_('BrSALC'), &
                                        kITemp, HetMinLife)
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'HOBr+Brsc', I, J, L, HET(ind_HOBr,  5)
+         WRITE(*,*) 'HOBr+Brsa', I, J, L, HET(ind_HOBr,  4)
 
          !----------------------------------------------------------------
          ! HOBr + ClSALA/C (TMS index: hhc04/05)
@@ -705,6 +723,8 @@ MODULE GCKPP_HETRATES
                   HETHOBr_SS_JS( XDenA, xRadi(12), xArea(12), SSAlk(2), &
                                  TempK, hConc_SSC, 0.5e+0_fp, brConc_SSC, 1 )
          HET(ind_HOBr,  3) = kITemp
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'HOBr+Clss', I, J, L, HET(ind_HOBr,  3)
 
          !----------------------------------------------------------------
          ! HOBr + HSO3-(aq) (QJC index: EhcHSHOBCld)
@@ -741,6 +761,9 @@ MODULE GCKPP_HETRATES
                                   TempK, brConc_SSC)
          HET(ind_ClNO3, 5) = kIIR1Ltd( spcVec, Ind_('ClNO3'), Ind_('BrSALC'), &
                                        kITemp, HetMinLife)
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'ClNO3+Brsa', I, J, L, HET(ind_ClNO3, 4)
+         WRITE(*,*) 'ClNO3+Brsc', I, J, L, HET(ind_ClNO3, 5)
 
          !----------------------------------------------------------------
          ! ClNO3 + HCl
@@ -749,6 +772,8 @@ MODULE GCKPP_HETRATES
          ! restored - TMS (2017/04/06 )
          HET(ind_ClNO3, 2) = kIIR1Ltd( spcVec, Ind_('ClNO3'), Ind_('HCl'), &
                              HETClNO3_HCl( 0.97E2_fp, 0E+0_fp), HetMinLife)
+         ! TMS DEBUG - print out HET rates
+          WRITE(*,*) 'ClNO3+HCl', I, J, L, HET(ind_ClNO3, 2)
 
          !----------------------------------------------------------------
          ! ClNO3 + HBr (TMS index: hhc09)
@@ -757,6 +782,8 @@ MODULE GCKPP_HETRATES
                                    TempK, brConc_Cld )
          HET(ind_ClNO3, 3) = kIIR1Ltd( spcVec, Ind_('ClNO3'), Ind_('HBr'), &
                                        kITemp, HetMinLife)
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'ClNO3+HBr', I, J, L, HET(ind_ClNO3, 3)
 
          !----------------------------------------------------------------
          ! HOCl + HCl and HOCl + HBr to take place in the troposphere
@@ -767,6 +794,9 @@ MODULE GCKPP_HETRATES
                              HETHOCl_HCl(  0.52E2_fp, 0E+0_fp), HetMinLife)
          HET(ind_HOCl,  2) = kIIR1Ltd( spcVec, Ind_('HOCl'),  Ind_('HBr'), &
                              HETHOCl_HBr(  0.52E2_fp, 0E+0_fp), HetMinLife)
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'HOCl+HCl', I, J, L, HET(ind_HOCl,  1)
+         WRITE(*,*) 'HOCl+HBr', I, J, L, HET(ind_HOCl,  2)
 
          !----------------------------------------------------------------
          ! O3 + Br- calculation (TMS index: hhc12)
@@ -775,6 +805,9 @@ MODULE GCKPP_HETRATES
                                 TempK, brConc_Cld, spcVec(Ind_('O3')))
          HET(ind_O3,    1) = kIIR1Ltd( spcVec, Ind_('O3'), Ind_('HBr'), &
                                        kITemp, HetMinLife)
+         ! this rate caculation is being assigned to O3? correct. shouldn't this be Br?
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'Br+O3', I, J, L, HET(ind_O3,    1)
 
          !----------------------------------------------------------------
          ! O3 + BrSALA/C calculations (TMS index: hhc13/14)
@@ -787,6 +820,9 @@ MODULE GCKPP_HETRATES
                                TempK, brConc_SSC, spcVec(Ind_('O3')))
          HET(ind_O3,    3) = kIIR1Ltd( spcVec, Ind_('O3'), Ind_('BrSALC'), &
                                        kITemp, HetMinLife)
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'Brsa+O3', I, J, L, HET(ind_O3,    2)
+         WRITE(*,*) 'Brss+O3', I, J, L, HET(ind_O3,    3)
 
          !----------------------------------------------------------------
          ! Cl uptake calculations (TMS index: hhc15/16)
@@ -798,6 +834,9 @@ MODULE GCKPP_HETRATES
          HET(ind_HCl,   1) = kITemp
          kITemp = HETHXUptake_JS( XDenA, xRadi(12), xArea(12), TempK, 1)
          HET(ind_HCl,   2) = kITemp
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'HCl+sa', I, J, L, HET(ind_HCl,   1)
+         WRITE(*,*) 'HCl+sc', I, J, L, HET(ind_HCl,   2)
 
          !----------------------------------------------------------------
          ! Br uptake calculation - forms BrSALA/C (TMS index: hhc17/18)
@@ -807,6 +846,9 @@ MODULE GCKPP_HETRATES
          HET(ind_HBr,   1) = kITemp
          kITemp = HETHXUptake_JS( XDenA, xRadi(12), xArea(12), TempK, 2)
          HET(ind_HBr,   2) = kITemp
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'HBr+sa', I, J, L, HET(ind_HBr,   1)
+         WRITE(*,*) 'HBr+sc', I, J, L, HET(ind_HBr,   2)
 
          !----------------------------------------------------------------
          ! BrNO3 + HCl into the troposphere
@@ -815,6 +857,8 @@ MODULE GCKPP_HETRATES
          ! restored - TMS (2017/04/06 )
          HET(ind_BrNO3, 2) = kIIR1Ltd( spcVec, Ind_('BrNO3'), Ind_('HCl'), &
                              HETBrNO3_HCl(  1.42E2_fp, 0E+0_fp), HetMinLife)
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'BrNO3+HCl', I, J, L, HET(ind_BrNO3, 2)
 
          !----------------------------------------------------------------
          ! N2O5 + HCl on sulfate
@@ -824,12 +868,16 @@ MODULE GCKPP_HETRATES
          kITemp = HETN2O5_HCl( 1.08E2_fp, 0.0e+0_fp ) 
          HET(ind_N2O5,  2) = kIIR1Ltd( spcVec, Ind_('N2O5'), Ind_('HCl'), &
                                        kITemp, HetMinLife) 
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'N2O5+HCl', I, J, L, HET(ind_N2O5,  2)
 
          !----------------------------------------------------------------
          ! Reaction of N2O5 with sea-salt Cl-
          ! (assumed to be in excess, so no kII calculation)
          !----------------------------------------------------------------
          HET(ind_N2O5,  3) = HETN2O5_SS(1.08E2_fp, 1E-1_fp)
+         ! TMS DEBUG - print out HET rates
+         WRITE(*,*) 'N2O5+ss', I, J, L, HET(ind_N2O5,  3) 
 
       ENDIF
 
@@ -840,15 +888,27 @@ MODULE GCKPP_HETRATES
          HET(ind_HI,   1) = HETIUptake( MW_HI,   0.10e+0_fp,  8 )
          HET(ind_HI,   2) = HETIUptake( MW_HI,   0.10e+0_fp, 11 )
          HET(ind_HI,   3) = HETIUptake( MW_HI,   0.10e+0_fp, 12 )
+         WRITE(*,*) 'HI+so', I, J, L, HET(ind_HI, 1)
+         WRITE(*,*) 'HI+sa', I, J, L, HET(ind_HI, 2)
+         WRITE(*,*) 'HI+sc', I, J, L, HET(ind_HI, 3)
          HET(ind_I2O2, 1) = HETIUptake( MW_I2O2, 0.02e+0_fp,  8 )
          HET(ind_I2O2, 2) = HETIUptake( MW_I2O2, 0.02e+0_fp, 11 )
          HET(ind_I2O2, 3) = HETIUptake( MW_I2O2, 0.02e+0_fp, 12 )
+         WRITE(*,*) 'I2O2+so', I, J, L, HET(ind_I2O2, 1)
+         WRITE(*,*) 'I2O2+sa', I, J, L, HET(ind_I2O2, 2)
+         WRITE(*,*) 'I2O2+sc', I, J, L, HET(ind_I2O2, 3)
          HET(ind_I2O3, 1) = HETIUptake( MW_I2O3, 0.02e+0_fp,  8 )
          HET(ind_I2O3, 2) = HETIUptake( MW_I2O3, 0.02e+0_fp, 11 )
          HET(ind_I2O3, 3) = HETIUptake( MW_I2O3, 0.02e+0_fp, 12 )
+         WRITE(*,*) 'I2O3+so', I, J, L, HET(ind_I2O3, 1)
+         WRITE(*,*) 'I2O3+sa', I, J, L, HET(ind_I2O3, 2)
+         WRITE(*,*) 'I2O3+sc', I, J, L, HET(ind_I2O3, 3)
          HET(ind_I2O4, 1) = HETIUptake( MW_I2O4, 0.02e+0_fp,  8 )
          HET(ind_I2O4, 2) = HETIUptake( MW_I2O4, 0.02e+0_fp, 11 )
          HET(ind_I2O4, 3) = HETIUptake( MW_I2O4, 0.02e+0_fp, 12 )
+         WRITE(*,*) 'I2O4+so', I, J, L, HET(ind_I2O4, 1)
+         WRITE(*,*) 'I2O4+sa', I, J, L, HET(ind_I2O4, 2)
+         WRITE(*,*) 'I2O4+sc', I, J, L, HET(ind_I2O4, 3)
 
          ! These uptake reactions require non-acidic aerosol
          ! Fine sea salt first
@@ -856,6 +916,9 @@ MODULE GCKPP_HETRATES
             HET(ind_HOI,  1) = HETIUptake( MW_HOI,   0.01e+0_fp, 11 )
             HET(ind_IONO, 1) = HETIUptake( MW_IONO,  0.02e+0_fp, 11 )
             HET(ind_IONO2,1) = HETIUptake( MW_IONO2, 0.01e+0_fp, 11 )
+            WRITE(*,*) 'HOIcyca', I, J, L, HET(ind_HOI, 1)
+            WRITE(*,*) 'IONOcyca', I, J, L, HET(ind_IONO, 1)
+            WRITE(*,*) 'IONO2cyca', I, J, L, HET(ind_IONO2, 1)
          ENDIF
 
          ! Now coarse sea salt
@@ -863,12 +926,18 @@ MODULE GCKPP_HETRATES
             HET(ind_HOI,  2) = HETIUptake( MW_HOI,   0.01e+0_fp, 12 )
             HET(ind_IONO, 2) = HETIUptake( MW_IONO,  0.02e+0_fp, 12 )
             HET(ind_IONO2,2) = HETIUptake( MW_IONO2, 0.01e+0_fp, 12 )
+            WRITE(*,*) 'HOIcycc', I, J, L, HET(ind_HOI, 2)
+            WRITE(*,*) 'IONOcycc', I, J, L, HET(ind_IONO, 2)
+            WRITE(*,*) 'IONO2cycc', I, J, L, HET(ind_IONO2, 2)
          ENDIF
 
          ! Breakdown of iodine compounds on sea-salt
          HET(ind_HOI,  3) = HETIXCycleSSA( MW_HOI,   0.01E+0_fp, SSAlk )
          HET(ind_IONO, 3) = HETIXCycleSSA( MW_IONO,  0.02E+0_fp, SSAlk )
          HET(ind_IONO2,3) = HETIXCycleSSA( MW_IONO2, 0.01E+0_fp, SSAlk )
+         WRITE(*,*) 'HOIloss', I, J, L, HET(ind_HOI, 3)
+         WRITE(*,*) 'IONOloss', I, J, L, HET(ind_IONO, 3)
+         WRITE(*,*) 'IONO2loss', I, J, L, HET(ind_IONO2, 3)
          
       ENDIF
 

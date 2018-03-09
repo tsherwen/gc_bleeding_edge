@@ -13,7 +13,7 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : gckpp_Global.f90
-! Time                 : Fri Mar  9 14:53:10 2018
+! Time                 : Fri Mar  9 15:02:27 2018
 ! Working directory    : /work/home/ts551/data/all_model_simulations/iodine_runs/iGEOSChem_6.3/code/KPP/Standard
 ! Equation file        : gckpp.kpp
 ! Output root filename : gckpp
@@ -39,7 +39,7 @@ MODULE gckpp_Global
   REAL(kind=dp) :: FIX(NFIX)
 ! VAR, FIX are chunks of array C
 !      EQUIVALENCE( C(1),VAR(1) )
-!      EQUIVALENCE( C(234),FIX(1) )
+!      EQUIVALENCE( C(578),FIX(1) )
 ! RCONST - Rate constants (global)
   REAL(kind=dp) :: RCONST(NREACT)
 ! TIME - Current integration time

@@ -380,7 +380,7 @@ MODULE GCKPP_HETRATES
       RELHUM        = RELHUM * 100e+0_fp
 
       !--------------------------------------------------------------------
-      ! Get species molecular weights [kg/mol]
+      ! Get species molecular weights [g/mol]
       !--------------------------------------------------------------------
       IF ( FIRST) THEN
          ! Hardcode HO2 for now
@@ -5928,7 +5928,6 @@ MODULE GCKPP_HETRATES
       REAL(fp)            :: AREA_L     ! Surface area (liquid)        [cm2/cm3]
       REAL(fp)            :: AREA_I     ! Surface area (ice) )         [cm2/cm3]
       REAL(fp)            :: Vcl, Vci   ! Volume of the cloud (liq and ice) [cm3]
-      Real(fp)            :: MX         ! Molar mass                   [kg/mol]
       LOGICAL             :: IS_LAND, IS_ICE, Is_Warm
    
       ! Pointers

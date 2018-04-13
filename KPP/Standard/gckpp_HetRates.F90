@@ -207,6 +207,10 @@ MODULE GCKPP_HETRATES
 !  Parrella et al, Tropospheric bromine chemistry: implications for present and
 !    pre-industrial ozone and mercury, Atmos. Chem. Phys., 12, 6,723-6,740,
 !    doi:10.5194/acp-12-6723-2012, 2012.
+!  Schmidt, J., et al., “Modelling the observed tropospheric BrO background: 
+!    Importance of multiphase chemistry & implications for ozone, OH, & 
+!    mercury”, J Geophys. Res-Atmos., 121, 024229, 
+!    https://doi.org/10.1002/2015JD024229, 2016.
 !  Sherwen, T., et al., Global impacts of tropospheric halogens (Cl, Br, I) on
 !    oxidants and composition in GEOS-Chem, Atmos. Chem. Phys., 16, 12239-12271,
 !    https://doi.org/10.5194/acp-16-12239-2016, 2016.

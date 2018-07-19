@@ -1740,7 +1740,7 @@ CONTAINS
     ! Constrained with simulated "climatology" for
     ! April 2012 - Jul 2017. Will need to be updated as more
     ! met fields become available (ltm, 2017-09-24).
-    IF ( ( cYr .eq. 2017 .and. cMt .le. 7 ) .or. cYr .le. 2016 ) THEN
+    IF ( cYr .le. 2019 ) THEN
        BETA = ANN_AVG_FLASHRATE / 85.362449d0
     ENDIF
 
@@ -1753,7 +1753,7 @@ CONTAINS
     ! Constrained with simulated "climatology" for
     ! April 2012 - Jul 2017. Will need to be updated as more
     ! met fields become available (ltm, 2017-09-24).    
-    IF ( ( cYr .eq. 2017 .and. cMt .le. 7 ) .or. cYr .le. 2016 ) THEN
+    IF ( cYr .le. 2019 ) THEN
        BETA = ANN_AVG_FLASHRATE / 269.13945d0
     ENDIF
     
@@ -1792,7 +1792,7 @@ CONTAINS
     ! Constrained with simulated "climatology" for
     ! April 2012 - Jan 2017. Will need to be updated as more
     ! met fields become available (ltm, 2017-09-28).
-    IF ( ( cYr .eq. 2017 .and. cMt .le. 7 ) .or. cYr .le. 2016 ) THEN    
+    IF ( cYr .le. 2019 ) THEN    
        BETA = ANN_AVG_FLASHRATE / 770.29078d0
     ENDIF
 

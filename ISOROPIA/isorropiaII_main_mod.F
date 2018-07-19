@@ -10329,9 +10329,9 @@
             ! stop code if Ca, K, Mg are non-zero
             ! this part of the code does not always conserve mass
             ! hotp 11/7/07
-            print*, 'ERROR: Ca,K,Mg must be zero for ISOROPIAII'
-            print*, 'Routine ISRP4F do not always conserve mass'
-            STOP
+!            print*, 'ERROR: Ca,K,Mg must be zero for ISOROPIAII'
+!            print*, 'Routine ISRP4F do not always conserve mass'
+!            STOP
          ENDIF
 !
 ! *** SOLVE REVERSE PROBLEM *********************************************

@@ -21,7 +21,6 @@
 !
       USE HCO_ERROR_MOD    ! For real precisions (hp)
       USE PRECISION_MOD    ! For GEOS-Chem Precision (fp)
-!      USE CMN_FJX_MOD     ! For nitrate photoslysis (now in integrator)
 
       IMPLICIT NONE
       PRIVATE
@@ -144,7 +143,6 @@
       USE State_Met_Mod,        ONLY : MetState
       USE TIME_MOD,             ONLY : GET_MONTH
       USE TIME_MOD,             ONLY : ITS_A_NEW_MONTH
-      USE TIME_MOD,             ONLY : GET_TS_CHEM
       USE IsorropiaII_Main_Mod, ONLY : Isoropia
 #if defined( BPCH_DIAG )
       USE CMN_DIAG_MOD,         ONLY : LD73,   ND73
@@ -218,6 +216,7 @@
       LOGICAL, SAVE            :: FIRST = .TRUE.
       INTEGER, SAVE            :: id_HNO3, id_NH3,  id_NH4
       INTEGER, SAVE            :: id_NIT,  id_SALA, id_SO4
+      INTEGER, SAVE            :: id_NITs,  id_SALC, id_SO4s
 
       ! Scalars
       INTEGER                  :: I,    J,    L,    N
@@ -226,8 +225,6 @@
       REAL(f8)                 :: RHI,  TEMPI, P_Pa
       REAL(fp)                 :: TCA,  TMG,  TK,   HNO3_DEN
       REAL(fp)                 :: HNO3_CH1, HNO3_CH2
-      REAL(fp)                 :: ZSCALE, ZEXP, NITs_CH
-      REAL(fp)                 :: DTCHEM
       REAL(fp)                 :: TNA,  TCL,  TNH3, TNH4
       REAL(fp)                 :: TNIT, TNO3, TSO4, VOL
       REAL(f8)                 :: AERLIQ(NIONSA+NGASAQA+2)
@@ -296,12 +293,18 @@
          id_NH3  = Ind_('NH3' )
          id_NH4  = Ind_('NH4' )
          id_NIT  = Ind_('NIT' )
+         id_NITs = Ind_('NITs')
          id_SALA = Ind_('SALA')
+         id_SALC = Ind_('SALC')
          id_SO4  = Ind_('SO4' )
+         id_SO4s = Ind_('SO4s')
 
          ! Make sure certain tracers are defined
          IF ( id_SO4 <= 0 ) THEN
             CALL ERROR_STOP( 'SO4 is an undefined species!',  X )
+         ENDIF
+         IF ( id_SO4s <= 0 ) THEN
+            CALL ERROR_STOP( 'SO4s is an undefined species!', X )
          ENDIF
          IF ( id_NH3 <= 0 ) THEN
             CALL ERROR_STOP( 'NH3 is an undefined species!',  X )
@@ -312,8 +315,14 @@
          IF ( id_NIT <= 0 ) THEN
             CALL ERROR_STOP( 'NIT is an undefined species!',  X )
          ENDIF
+         IF ( id_NITs <= 0 ) THEN
+            CALL ERROR_STOP( 'NITs is an undefined species!', X )
+         ENDIF
          IF ( id_SALA <= 0 ) THEN
             CALL ERROR_STOP( 'SALA is an undefined species!', X )
+         ENDIF
+         IF ( id_SALC <= 0 ) THEN
+            CALL ERROR_STOP( 'SALC is an undefined species!', X )
          ENDIF
 
          ! Initialize arrays
@@ -363,9 +372,6 @@
 
       ! Point to chemical species array [kg]
       Spc => State_Chm%Species
-
-      ! DTCHEM is the chemistry timestep in seconds
-      DTCHEM = GET_TS_CHEM() * 60e+0_fp
 
       !=================================================================
       ! Loop over grid boxes and call ISOROPIA (see comments in the 
@@ -724,8 +730,6 @@
 !$OMP END PARALLEL DO
      
       ! Coarse mode
- 
-      STT => State_Chm%Tracers
 
       !=================================================================
       ! Loop over grid boxes and call ISOROPIA (see comments in the
@@ -740,14 +744,13 @@
 !$OMP+PRIVATE( TCA,  TMG,    TK,      CNTRL,  SCASI                  )
 !$OMP+PRIVATE( TNO3, AERLIQ, AERSLD,  OTHER,  TNH4, TNIT             )
 !$OMP+PRIVATE( HNO3_CH1, HNO3_CH2     )
-!$OMP+PRIVATE( ZSCALE, ZEXP, NITs_CH  )
 !$OMP+SCHEDULE( DYNAMIC )
       DO L = 1, LLPAR
       DO J = 1, JJPAR
       DO I = 1, IIPAR
 
          ! Only applying ISORROPIA II in troposphere
-         IF ( ITS_IN_THE_STRATMESO( I, J, L, State_Met ) ) CYCLE
+         IF ( State_Met%InStratMeso(I,J,L) ) CYCLE
 
          ! Initialize WI, WT
          DO N = 1, NCOMPA
@@ -777,39 +780,39 @@
          !---------------------------------
 
          ! Total SO4 [mole/m3] - SO4s + seasalt SO4 (7.68% by wt)
-         TSO4 = STT(I,J,L,IDTSO4s) * 1.e+3_fp / ( 96.e+0_fp * VOL )
-     &        + STT(I,J,L,IDTSALC) * 0.0768e+0_fp * 1.e+3_fp /
+         TSO4 = Spc(I,J,L,id_SO4s) * 1.e+3_fp / ( 96.e+0_fp * VOL )
+     &        + Spc(I,J,L,id_SALC) * 0.0768e+0_fp * 1.e+3_fp /
      &        ( 96.e+0_fp  * VOL  )
  
          ! Total NH3 [mole/m3] - no NH3 uptake by SSC
          TNH3     = 0e+0_fp
 
          ! Total Na+ (30.61% by weight of seasalt) [mole/m3]
-         TNA      = STT(I,J,L,IDTSALC) * 0.3061e+0_fp * 1.e+3_fp /
+         TNA      = Spc(I,J,L,id_SALC) * 0.3061e+0_fp * 1.e+3_fp /
      &                                 ( 22.99e+0_fp  * VOL  )
 
          ! Total Cl- (55.04% by weight of seasalt) [mole/m3]
-         TCL      = STT(I,J,L,IDTSALC) * 0.5504e+0_fp * 1.e+3_fp /
+         TCL      = Spc(I,J,L,id_SALC) * 0.5504e+0_fp * 1.e+3_fp /
      &                                 ( 35.45e+0_fp  * VOL  )
          
          ! Total Ca2+ (1.16% by weight of seasalt) [mole/m3]
-         TCA      = STT(I,J,L,IDTSALC) * 0.0116e+0_fp * 1.d3 /
+         TCA      = Spc(I,J,L,id_SALC) * 0.0116e+0_fp * 1.d3 /
      &                                 ( 40.08e+0_fp  * VOL  )
 
          ! Total K+   (1.1% by weight of seasalt)  [mole/m3]
-         TK       = STT(I,J,L,IDTSALC) * 0.0110e+0_fp * 1.d3 /
+         TK       = Spc(I,J,L,id_SALC) * 0.0110e+0_fp * 1.d3 /
      &                                 ( 39.102e+0_fp * VOL  )
 
          ! Total Mg+  (3.69% by weight of seasalt) [mole/m3]
-         TMG      = STT(I,J,L,IDTSALC) * 0.0369e+0_fp * 1.d3 /
+         TMG      = Spc(I,J,L,id_SALC) * 0.0369e+0_fp * 1.d3 /
      &                                 ( 24.312e+0_fp * VOL  )
 
          ! Compute gas-phase HNO3 [mole/m3] from HNO3 tracer
-         GNO3  = STT(I,J,L,IDTHNO3)
+         GNO3  = Spc(I,J,L,id_HNO3)
          GNO3  = MAX( GNO3 * 1.e+3_fp / ( 63.e+0_fp * VOL ), CONMIN )
 
          ! Aerosol-phase NO3 [mole/m3]
-         ANO3  = STT(I,J,L,IDTNITs) * 1.e+3_fp / ( 62.e+0_fp * VOL )
+         ANO3  = Spc(I,J,L,id_NITs) * 1.e+3_fp / ( 62.e+0_fp * VOL )
 
          ! Total NO3 [mole/m3]
          TNO3    = GNO3 + ANO3
@@ -844,33 +847,17 @@
      &                  SCASI, OTHER)
 
          ! Calculate change in equiv
-         HNO3_CH1 = (STT(I,J,L,IDTHNO3)/63.e-3_fp - VOL*GAS(2))
+         HNO3_CH1 = (Spc(I,J,L,id_HNO3)/63.e-3_fp - VOL*GAS(2))
      &               * (1.e+0_fp - State_Chm%NFLUXSAVE(I,J,L))
          HNO3_CH2=MAX( HNO3_CH1, CONMIN)
 
          ! Calculate change in kg
-         STT(I,J,L,IDTHNO3) = STT(I,J,L,IDTHNO3)
+         Spc(I,J,L,id_HNO3) = Spc(I,J,L,id_HNO3)
      &                      - HNO3_CH2*63.e-3_fp
-         STT(I,J,L,IDTHNO3) = MAX( STT(I,J,L,IDTHNO3), CONMIN)
-         STT(I,J,L,IDTNITs) = STT(I,J,L,IDTNITs)
+         Spc(I,J,L,id_HNO3) = MAX( Spc(I,J,L,id_HNO3), CONMIN)
+         Spc(I,J,L,id_NITs) = Spc(I,J,L,id_NITs)
      &                         + HNO3_CH2*62.e-3_fp
-         STT(I,J,L,IDTNITs) = MAX( STT(I,J,L,IDTNITs), CONMIN)
-
-! TMS (18/07/11) - Comment out the NITs photolysis secetion below
-! nitrate photolysis is now considered within the integrator 
-! (and not in the main code branch)
-!! Calculate photolysis loss of NITs in moles
-!! yielding 66.7% HNO2 and 33.3% NO2
-!! ZSCALE is scaling factor applied to JHNO3
-!         ZSCALE= 10.0e+0_fp
-!         ZEXP = exp(-ZSCALE*ZPJ(l,16,i,j)*DTCHEM)
-!         NITs_CH = STT(I,J,L,IDTNITs)/62.e-3_fp
-!     &           * (1.0e+0_fp - ZEXP)
-!         STT(I,J,L,IDTNITs)=STT(I,J,L,IDTNITs)*ZEXP
-!         STT(I,J,L,IDTHNO2)=STT(I,J,L,IDTHNO2)
-!     &                     + 0.667e+0_fp*NITs_CH*47.0e-3_fp
-!         STT(I,J,L,IDTNO2)=STT(I,J,L,IDTNO2)
-!     &                     + 0.333e+0_fp*NITs_CH*46.0e-3_fp
+         Spc(I,J,L,id_NITs) = MAX( Spc(I,J,L,id_NITs), CONMIN)
 
       ENDDO
       ENDDO

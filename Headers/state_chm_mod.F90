@@ -706,8 +706,9 @@ CONTAINS
     !=====================================================================
     ! Allocate field for coarse seasalt nitrate calculation
     !=====================================================================
-    ALLOCATE( State_Chm%NFLUXSAVE     ( IM, JM, LM            ), STAT=RC )
-    IF ( RC /= GIGC_SUCCESS ) RETURN
+    ALLOCATE( State_Chm%NFLUXSAVE( IM, JM, LM ), STAT=RC )
+    CALL GC_CheckVar( 'State_Chm%NFLUXSAVE', 0, RC )
+    IF ( RC /= GC_SUCCESS ) RETURN
 
     !=======================================================================
     ! Allocate and initialize quantities that are only relevant for the

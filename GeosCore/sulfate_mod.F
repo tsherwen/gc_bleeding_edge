@@ -7832,8 +7832,6 @@
       REAL(fp), POINTER   :: TAREA(:,:,:,:)
 
       ! Alkalinity bugfix (JAS 9/30/15)
-      INTEGER     :: JLOOP
-      REAL(fp)    :: SA1, SA2, R1, R2
       REAL(fp)    :: lambda, knud
       REAL(fp)    :: KT2Nx1, KT2Nx2, Nx2
  
@@ -7968,6 +7966,7 @@
          TERM3A = (CONST1**2)*LOG(B1/A1)
          KT1    = 4.e+0_fp*PI*N1*(DG**3)*(TERM1A - TERM2A + TERM3A)
          KT1    = KT1/(RAD2-RAD1)
+         ! now calculate rate of uptake as kt = [SSA]/( r/Dg + 4/(v*gamma) )
          !KT1    = SA1/((R1/DG) + CONST1)
 
          !----------------------------------
@@ -8018,6 +8017,7 @@
          KT2N    = 4.e+0_fp*PI*N2*(DG**3)*(TERM1BN - TERM2BN + TERM3BN)
          KT2N    = KT2N/(RAD3-RAD2)
          !KT2N    = SA2/((R2/DG) + CONST2N)
+         ! Alkalinity bugfix (JAS 9/30/15)
          lambda=3.e+0_fp*DG/V
          knud=lambda/R2
          KT2Nx1 = 0.75e+0_fp*GAMMA_HNO3*(1.e+0_fp+knud)
@@ -8030,12 +8030,12 @@
       ELSE
 
          ! If no alkalinity, set everything to zero
-         ALK1 = 0.e+0_fp
-         ALK2 = 0.e+0_fp
-         KT1  = 0.e+0_fp
-         KT1N = 0.e+0_fp
-         KT2  = 0.e+0_fp
-         KT2N = 0.e+0_fp
+         ALK1  = 0.e+0_fp
+         ALK2  = 0.e+0_fp
+         KT1   = 0.e+0_fp
+         KT1N  = 0.e+0_fp
+         KT2   = 0.e+0_fp
+         KT2N  = 0.e+0_fp
          KT2Nx = 0.e+0_fp
 
       ENDIF

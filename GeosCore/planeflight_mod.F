@@ -1728,8 +1728,12 @@
             ! Add HIPPO (ajt, 5/23/13)
             ! Add CCGG (ajt, 7/5/13)
             ! Add NOAA towers (ajt, 4/2/15)
-            IF ( TRIM(ADJUSTL(PTYPE(M))) .NE. 'DC-8'  .AND.
+            IF ( TRIM(ADJUSTL(PTYPE(M))) .NE. 'DC-8'  .AND. ! NASA Aircraft
      &           TRIM(ADJUSTL(PTYPE(M))) .NE. 'ER2'   .AND.
+     &           TRIM(ADJUSTL(PTYPE(M))) .NE. 'BA146' .AND. ! UK FAAM Aircraft
+     &           TRIM(ADJUSTL(PTYPE(M))) .NE. 'AC1'   .AND. ! BA146 - ACSIS1
+     &           TRIM(ADJUSTL(PTYPE(M))) .NE. 'AC2'   .AND. ! BA146 - ACSIS2
+     &           TRIM(ADJUSTL(PTYPE(M))) .NE. 'AC3'   .AND. ! BA146 - ACSIS3
      &           TRIM(ADJUSTL(PTYPE(M))) .NE. 'calnx' .AND. ! Calnex
      &           TRIM(ADJUSTL(PTYPE(M))) .NE. 'calne' .AND. ! Calnex
      &           TRIM(ADJUSTL(PTYPE(M))) .NE. 'Aacg'  .AND. ! NOAA Aircraft

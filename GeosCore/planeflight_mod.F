@@ -1065,57 +1065,61 @@
          ENDIF
 #endif
 
-         ! Convert from altitude to pressure if we have CCCG data or
-         ! tower data
-         NAME = ADJUSTL(PTYPE(N))
-         IF ( NAME(1:1)  .EQ. 'S'      .OR. ! NOAA Surface
-     &        TRIM(NAME) .EQ. 'Aacg'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Abne'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Acar'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Acma'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Acrv'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Adnd'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Aesp'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Aetl'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Ahil'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Ahip'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Alef'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Anha'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Apfa'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Arta'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Asca'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Asgp'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Atgc'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Athd'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Awbi'   .OR. ! NOAA Aircraft
-     &        TRIM(NAME) .EQ. 'Tamt'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Tbao'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Tcrv'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Tlef'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Tlew'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Tmbo'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Tmvy'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Tmwo'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Tnwr'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Tsct'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Tsgp'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Tstr'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Twbi'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Twgc'   .OR. ! NOAA Tower
-     &        TRIM(NAME) .EQ. 'Twkt' ) THEN ! NOAA Tower
-            ! Change units
-            L_ALT = 0
-            IJ = GET_IJ(LON,LAT)
-            DO L = 1, LLPAR
-               MOD_ELEV = State_Met%PHIS(IJ(1),IJ(2))/ g0
-     &                  + SUM( State_Met%BXHEIGHT(IJ(1),IJ(2),1:L) )
-               IF ( (L_ALT    .EQ.    0)  .AND.
-     &              (MOD_ELEV .GT. PRES) ) THEN
-                  L_ALT = L
-               ENDIF
-            ENDDO
-            PRES = State_Met%PMID(IJ(1),IJ(2),L_ALT)
-         ENDIF
+         ! Commented out section below to return planeflight to default
+         ! settings of previous GC versions (excepting PRES variable to be
+         ! in units of presssure (hPa) not metres)
+!         ! Convert from altitude to pressure if we have CCCG data or
+!         ! tower data
+!         NAME = ADJUSTL(PTYPE(N))
+!         IF ( NAME(1:1)  .EQ. 'S'      .OR. ! NOAA Surface
+!     &        TRIM(NAME) .EQ. 'Aacg'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Abne'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Acar'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Acma'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Acrv'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Adnd'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Aesp'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Aetl'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Ahil'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Ahip'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Alef'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Anha'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Apfa'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Arta'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Asca'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Asgp'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Atgc'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Athd'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Awbi'   .OR. ! NOAA Aircraft
+!     &        TRIM(NAME) .EQ. 'Tamt'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Tbao'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Tcrv'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Tlef'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Tlew'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Tmbo'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Tmvy'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Tmwo'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Tnwr'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Tsct'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Tsgp'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Tstr'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Twbi'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Twgc'   .OR. ! NOAA Tower
+!     &        TRIM(NAME) .EQ. 'Twkt' ) THEN ! NOAA Tower
+!
+!            ! Change units
+!            L_ALT = 0
+!            IJ = GET_IJ(LON,LAT)
+!            DO L = 1, LLPAR
+!               MOD_ELEV = State_Met%PHIS(IJ(1),IJ(2))/ g0
+!     &                  + SUM( State_Met%BXHEIGHT(IJ(1),IJ(2),1:L) )
+!               IF ( (L_ALT    .EQ.    0)  .AND.
+!     &              (MOD_ELEV .GT. PRES) ) THEN
+!                  L_ALT = L
+!               ENDIF
+!            ENDDO
+!            PRES = State_Met%PMID(IJ(1),IJ(2),L_ALT)
+!         ENDIF
 
          ! Assign LAT value into global PLAT array
          PLAT(N)   = LAT
@@ -1126,7 +1130,7 @@
          ! Assign PRES value into global PPRESS array
          PPRESS(N) = PRES
 
-         ! Assign OBS value into global PPRESS array
+         ! Assign OBS value into global POBS array
          POBS(N) = OBS
 
       ENDDO

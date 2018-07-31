@@ -779,6 +779,12 @@ CONTAINS
                 ! which is BrCl in the strat (ckeller, 1/2/15)
                 IF ( ISBR2 ) BryTmp = BryTmp / 2.0_fp
 
+
+                ! TMS 31/08/18 - Set values to tiny in trop. 
+                IF ( State_Met%InTropoSphere( I, J, L ) ) THEN                
+                   BryTmp = 1.e-20_fp 
+                ENDIF
+
                 ! Pass to Spc array
                 Spc(I,J,L, GC_Bry_TrID(NN) ) = BryTmp
 

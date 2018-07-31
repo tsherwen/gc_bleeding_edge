@@ -13,8 +13,8 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : gckpp_Monitor.f90
-! Time                 : Thu Apr 12 15:20:38 2018
-! Working directory    : /n/home08/elundgren/GC/Code.v11-02f_gcc/KPP/Standard
+! Time                 : Tue Jul 31 16:48:13 2018
+! Working directory    : /work/home/ts551/data/all_model_simulations/iodine_runs/iGEOSChem_7.0/code/KPP/Standard
 ! Equation file        : gckpp.kpp
 ! Output root filename : gckpp
 ! 
@@ -673,7 +673,7 @@ MODULE gckpp_Monitor
      '    N2O5 + H2O --> LOx + 2 HNO3                                                                     ', & ! index 539
      '    N2O5 + HCl --> LOx + ClNO2 + HNO3                                                               ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_18 = (/ &
-     '          N2O5 --> LOx + ClNO2 + HNO3                                                               ', & ! index 541
+     '          N2O5 --> LOx + 2 HNO3                                                                     ', & ! index 541
      '   BrNO3 + H2O --> HOBr + HNO3                                                                      ', & ! index 542
      '   BrNO3 + HCl --> LOx + BrCl + HNO3                                                                ', & ! index 543
      '   ClNO3 + H2O --> HNO3 + HOCl                                                                      ', & ! index 544

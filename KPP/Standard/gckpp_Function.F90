@@ -13,8 +13,8 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : gckpp_Function.f90
-! Time                 : Thu Apr 12 15:20:38 2018
-! Working directory    : /n/home08/elundgren/GC/Code.v11-02f_gcc/KPP/Standard
+! Time                 : Tue Jul 31 16:48:13 2018
+! Working directory    : /work/home/ts551/data/all_model_simulations/iodine_runs/iGEOSChem_7.0/code/KPP/Standard
 ! Equation file        : gckpp.kpp
 ! Output root filename : gckpp
 ! 
@@ -895,7 +895,7 @@ SUBROUTINE Fun ( V, F, RCT, Vdot )
   Vdot(82) = -0.69*A(311)-A(333)-A(684)
   Vdot(83) = -0.74*A(312)-A(334)-A(685)
   Vdot(84) = A(381)-A(382)-2*A(383)-A(579)-A(580)-A(583)-A(696)
-  Vdot(85) = -A(326)+A(540)+A(541)-A(672)
+  Vdot(85) = -A(326)+A(540)-A(672)
   Vdot(86) = -0.72*A(306)-A(332)-A(686)
   Vdot(87) = A(390)-A(391)-2*A(392)+2*A(393)-A(394)+A(405)+A(408)-A(694)+A(698)+2*A(703)+A(704)
   Vdot(88) = A(129)-A(170)-A(638)
@@ -1013,7 +1013,7 @@ SUBROUTINE Fun ( V, F, RCT, Vdot )
   Vdot(188) = A(487)+A(488)-A(489)-A(490)-A(491)-A(492)-A(493)
   Vdot(189) = -A(117)+0.143*A(178)+0.493*A(180)+0.346*A(187)-A(210)-A(222)+A(410)-A(411)-A(412)-A(413)
   Vdot(190) = A(23)-A(24)+A(38)+A(40)+0.6*A(65)+A(81)+A(93)+A(110)+A(145)+A(146)+0.5*A(161)+A(199)+A(201)+0.41*A(237)&
-                &+0.3*A(238)+A(241)+A(412)+A(429)+A(433)+A(525)+A(526)+0.5*A(537)+A(538)+2*A(539)+A(540)+A(541)+A(542)&
+                &+0.3*A(238)+A(241)+A(412)+A(429)+A(433)+A(525)+A(526)+0.5*A(537)+A(538)+2*A(539)+A(540)+2*A(541)+A(542)&
                 &+A(543)+A(544)+A(545)+A(546)+A(547)+A(548)+A(584)-A(611)
   Vdot(191) = 0.009*A(56)+0.5*A(79)+0.25*A(122)-A(238)-A(414)-A(594)-A(709)
   Vdot(192) = 0.53*A(58)+0.578*A(102)+0.13*A(117)+0.36*A(118)-A(140)-A(141)+0.025*A(185)+0.088*A(186)+0.5*A(202)+0.234&

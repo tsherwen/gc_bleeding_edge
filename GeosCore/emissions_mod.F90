@@ -36,7 +36,7 @@ MODULE Emissions_Mod
 ! !PRIVATE TYPES: 
 !
   ! Species ID flags
-  INTEGER :: id_BrO, id_CH4, id_CH3Br
+  INTEGER :: id_BrO, id_CH4, id_CH3Br, id_HOI
 
 CONTAINS
 !EOC
@@ -103,6 +103,7 @@ CONTAINS
     id_BrO   = Ind_('BrO'  )
     id_CH4   = Ind_('CH4'  )
     id_CH3Br = Ind_('CH3Br')    
+    id_HOI   = Ind_('HOI')    
 
     ! Initialize the HEMCO environment for this GEOS-Chem run.
     CALL HCOI_GC_Init( am_I_Root, Input_Opt, State_Met,                      &
@@ -137,6 +138,7 @@ CONTAINS
 !
     USE BROMOCARB_MOD,      ONLY : SET_BRO
     USE BROMOCARB_MOD,      ONLY : SET_CH3BR
+    USE BROMOCARB_MOD,      ONLY : SET_TROP_CONC
     USE CARBON_MOD,         ONLY : EMISSCARBON
     USE CO2_MOD,            ONLY : EMISSCO2
     USE ErrCode_Mod
@@ -360,6 +362,23 @@ CONTAINS
              ENDIF
 
           endif
+
+          !========================================================
+          ! TMS, 31/07/18: putting a call to SET_TROP_CONC                           
+          !                which is in bromocarb_mod.f                           
+          ! ***** Set halogens concentration to zero in trop. *****
+          !========================================================
+          IF ( Input_Opt%LEMIS .AND. ( id_HOI > 0 ) ) THEN
+             CALL Set_TROP_CONC( am_I_Root, Input_Opt, State_Met, &
+                             State_Chm, RC )
+
+             ! Trap potential errors                                           
+             IF ( RC /= GC_SUCCESS ) THEN
+                ErrMsg = 'Error encountered in "SET_TROP_CONC"!'
+                CALL GC_Error( ErrMsg, RC, ThisLoc )
+                RETURN
+             ENDIF
+          ENDIF
  
        ENDIF
     ENDIF ! Phase/=1  

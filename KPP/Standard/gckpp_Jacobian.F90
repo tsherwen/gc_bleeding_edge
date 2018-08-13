@@ -13,8 +13,8 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : gckpp_Jacobian.f90
-! Time                 : Thu Jul 19 13:05:43 2018
-! Working directory    : /n/home05/msulprizio/GC/Code.Dev/KPP/Standard
+! Time                 : Mon Aug 13 13:56:46 2018
+! Working directory    : /work/home/ts551/data/all_model_simulations/iodine_runs/iGEOSChem_7.0.1/Code.12.0.0/KPP/Standard
 ! Equation file        : gckpp.kpp
 ! Output root filename : gckpp
 ! 
@@ -3532,7 +3532,7 @@ SUBROUTINE Jac_SP ( V, F, RCT, JVS )
 ! JVS(510) = Jac_FULL(83,83)
   JVS(510) = -B(628)-B(1181)
 ! JVS(511) = Jac_FULL(83,132)
-  JVS(511) = B(1032)+B(1034)
+  JVS(511) = B(1032)
 ! JVS(512) = Jac_FULL(83,225)
   JVS(512) = B(1033)
 ! JVS(513) = Jac_FULL(83,234)
@@ -5229,7 +5229,7 @@ SUBROUTINE Jac_SP ( V, F, RCT, JVS )
 ! JVS(1358) = Jac_FULL(190,125)
   JVS(1358) = B(1045)
 ! JVS(1359) = Jac_FULL(190,132)
-  JVS(1359) = 2*B(1030)+B(1032)+B(1034)
+  JVS(1359) = 2*B(1030)+B(1032)+2*B(1034)
 ! JVS(1360) = Jac_FULL(190,137)
   JVS(1360) = B(383)
 ! JVS(1361) = Jac_FULL(190,138)

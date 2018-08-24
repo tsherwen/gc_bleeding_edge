@@ -93,7 +93,7 @@
       INTEGER :: id_I2O3 
 
       ! Needed for scaling JNIT/JNITs photolysis to JHNO3
-      INTEGER :: JscaleNITs, JscaleNIT
+      REAL(fp)      :: JscaleNITs, JscaleNIT
 
       CONTAINS      
 !EOC
@@ -3771,6 +3771,12 @@ C-----------------------------------------------------------------------
      &                                ZPJ(L,53,ILON,ILAT)
                AD22(ILON,ILAT,L,76) = AD22(ILON,ILAT,L,76) +  ! JH2402
      &                                ZPJ(L,54,ILON,ILAT)
+               AD22(ILON,ILAT,L,77) = AD22(ILON,ILAT,L,77) +  ! JNIT
+     &                                ZPJ(L,131,ILON,ILAT) +
+     &                                ZPJ(L,132,ILON,ILAT)
+               AD22(ILON,ILAT,L,78) = AD22(ILON,ILAT,L,78) +  ! JNITs
+     &                                ZPJ(L,133,ILON,ILAT) +
+     &                                ZPJ(L,134,ILON,ILAT)
                ENDIF ! IS_HALOGENS
             ENDDO
 

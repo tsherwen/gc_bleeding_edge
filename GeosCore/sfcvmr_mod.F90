@@ -118,8 +118,10 @@ CONTAINS
        DO J = 1, JJPAR
        DO I = 1, IIPAR
           IF (GET_FRAC_UNDER_PBLTOP(I,J,L)>0e+0_fp) THEN
-             Spc(I,J,L,id_Spc) = 550e-12_fp / ( AIRMW / &
-                State_Chm%SpcData(id_Spc)%Info%emMW_g )
+!             Spc(I,J,L,id_Spc) = 550e-12_fp / ( AIRMW / &
+!                State_Chm%SpcData(id_Spc)%Info%emMW_g )
+             ! Set concentrations to tiny
+             Spc(I,J,L,id_Spc) = 1e-20_fp
           ENDIF  ! end selection of PBL boxes
        ENDDO
        ENDDO
@@ -137,8 +139,10 @@ CONTAINS
        DO J = 1, JJPAR
        DO I = 1, IIPAR
           IF (GET_FRAC_UNDER_PBLTOP(I,J,L)>0e+0_fp) THEN
-             Spc(I,J,L,id_Spc) = 20e-12_fp / ( AIRMW / &
-                State_Chm%SpcData(id_Spc)%Info%emMW_g )
+!             Spc(I,J,L,id_Spc) = 20e-12_fp / ( AIRMW / &
+!                State_Chm%SpcData(id_Spc)%Info%emMW_g )
+             ! Set concentrations to tiny
+             Spc(I,J,L,id_Spc) = 1e-20_fp
           ENDIF  ! end selection of PBL boxes
        ENDDO
        ENDDO
@@ -156,8 +160,10 @@ CONTAINS
        DO J = 1, JJPAR
        DO I = 1, IIPAR
           IF (GET_FRAC_UNDER_PBLTOP(I,J,L)>0e+0_fp) THEN
-             Spc(I,J,L,id_Spc) = 7e-12_fp / ( AIRMW / &
-                State_Chm%SpcData(id_Spc)%Info%emMW_g )
+!             Spc(I,J,L,id_Spc) = 7e-12_fp / ( AIRMW / &
+!                State_Chm%SpcData(id_Spc)%Info%emMW_g )
+             ! Set concentrations to tiny
+             Spc(I,J,L,id_Spc) = 1e-20_fp
           ENDIF  ! end selection of PBL boxes
        ENDDO
        ENDDO

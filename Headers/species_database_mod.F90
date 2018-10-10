@@ -3252,6 +3252,7 @@ CONTAINS
                               Is_Gas        = F,                            &
                               Is_Drydep     = T,                            &
                               Is_Wetdep     = T,                            &
+                              Is_Photolysis = T,                            &
                               DD_DvzAerSnow = 0.03_fp,                      &
                               DD_DvzMinVal  = DvzMinVal,                    &
                               DD_F0         = 0.0_fp,                       &
@@ -3303,6 +3304,7 @@ CONTAINS
                               Is_Gas        = F,                            &
                               Is_Drydep     = T,                            &
                               Is_Wetdep     = T,                            &
+                              Is_Photolysis = T,                            &
                               Density       = 2200.0_fp,                    &
                               Radius        = Radius,                       &
                               DD_AeroDryDep = T,                            &

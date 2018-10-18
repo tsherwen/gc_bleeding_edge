@@ -2872,8 +2872,6 @@ c---Zero / Set index arrays that map Jvalue(j) onto rates
          TEXT = JLABEL(K)
          CALL CSTRIP( TEXT )
 
-         WRITE(*,*) K, TRIM( TEXT )
-
          ! Look for certain reactions
          SELECT CASE( TRIM( TEXT ) )
          
@@ -2920,23 +2918,22 @@ c---Zero / Set index arrays that map Jvalue(j) onto rates
             ! NITs + hv -> HNO2
             CASE( 'NITsPHOTONHNO2' )
                RXN_JNITSa = K
-!               WRITE(*,*) 'FOUND NITsPHOTONHNO2, ', K
+
             ! NITs + hv -> NO2
             CASE( 'NITsPHOTONNO2' )
                RXN_JNITSb = K
-!               WRITE(*,*) 'FOUND NITsPHOTONNO2, ', K
+
             ! NIT + hv -> HNO2
             CASE( 'NITPHOTONHNO2' )
                RXN_JNITa = K
-!               WRITE(*,*) 'FOUND NITPHOTONHNO2, ', K
+
             ! NIT + hv -> NO2
             CASE( 'NITPHOTONNO2' )
                RXN_JNITb = K
-!               WRITE(*,*) 'FOUND NITPHOTONNO2, ', K
+
             ! HNO3 + hv = OH + NO2
             CASE( 'HNO3PHOTONNO2OH' )
                RXN_JHNO3 = K
-!               WRITE(*,*) 'FOUND HNO3PHOTONNO2OH, ', K
 
             CASE DEFAULT
                ! Nothing
@@ -5160,14 +5157,6 @@ C---Always does PL(2) = P[1]
          JscaleNIT  = Input_Opt%hvAerNIT_JNIT
          JNITChanA  = Input_Opt%JNITChanA
          JNITChanB  = Input_Opt%JNITChanB
-         ! check the input swtitches
-!         WRITE( *, *) 'TMS check - channel', JNITChanA, JNITChanB
-!         WRITE( *, *) 'TMS check - Jscale', JscaleNITs, JscaleNIT         
-!         WRITE( *, *) 'TMS check - before HNO3', ZPJ(L,RXN_JHNO3,I,J)
-!         WRITE( *, *) 'TMS check - before NITsa', ZPJ(L,RXN_JNITSa,I,J)
-!         WRITE( *, *) 'TMS check - before NITsb', ZPJ(L,RXN_JNITSb,I,J)
-!         WRITE( *, *) 'TMS check - before NITa', ZPJ(L,RXN_JNITa,I,J)
-!         WRITE( *, *) 'TMS check - before NITb', ZPJ(L,RXN_JNITb,I,J)
          ! Set the photolysis rate of NIT
          ZPJ(L,RXN_JNITa,I,J) = ZPJ(L,RXN_JHNO3,I,J) * JscaleNIT
          ZPJ(L,RXN_JNITb,I,J) = ZPJ(L,RXN_JHNO3,I,J) * JscaleNIT
@@ -5180,10 +5169,6 @@ C---Always does PL(2) = P[1]
          ZPJ(L,RXN_JNITa,I,J) = ZPJ(L,RXN_JNITa,I,J) * JNITChanA
          ZPJ(L,RXN_JNITSb,I,J) = ZPJ(L,RXN_JNITSb,I,J) * JNITChanB
          ZPJ(L,RXN_JNITb,I,J) = ZPJ(L,RXN_JNITb,I,J) * JNITChanB
-!         WRITE( *, *) 'TMS check - after NITsa', ZPJ(L,RXN_JNITSa,I,J)
-!         WRITE( *, *) 'TMS check - after NITsb', ZPJ(L,RXN_JNITSb,I,J)
-!         WRITE( *, *) 'TMS check - after NITa', ZPJ(L,RXN_JNITa,I,J)
-!         WRITE( *, *) 'TMS check - after NITb', ZPJ(L,RXN_JNITb,I,J)
 
       ENDIF
 
@@ -5361,10 +5346,10 @@ C---Always does PL(2) = P[1]
       !--------------------------------------------------------------
       IF ( Do_ND22 ) THEN
 
-         AD22(I,J,L,77) = AD22(I,J,L,77) +  ! JNIT
+         AD22(I,J,L,77) = AD22(I,J,L,77) +  ! JNITs
      &                          ZPJ(L,RXN_JNITSa,I,J) +
      &                          ZPJ(L,RXN_JNITSb,I,J)
-         AD22(I,J,L,78) = AD22(I,J,L,78) +  ! JNITs
+         AD22(I,J,L,78) = AD22(I,J,L,78) +  ! JNIT
      &                          ZPJ(L,RXN_JNITa,I,J) +
      &                          ZPJ(L,RXN_JNITb,I,J)
       ENDIF

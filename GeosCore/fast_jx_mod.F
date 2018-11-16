@@ -5170,6 +5170,15 @@ C---Always does PL(2) = P[1]
          ZPJ(L,RXN_JNITSb,I,J) = ZPJ(L,RXN_JNITSb,I,J) * JNITChanB
          ZPJ(L,RXN_JNITb,I,J) = ZPJ(L,RXN_JNITb,I,J) * JNITChanB
 
+      ! Gotcha to set JNIT and JNITs to zero if hvAerNIT switch is off
+      ELSE
+         ! Set the photolysis rate of NIT to zero
+         ZPJ(L,RXN_JNITa,I,J) = 0.0_fp 
+         ZPJ(L,RXN_JNITb,I,J) = 0.0_fp
+         ! Set the photolysis rate of NITs to zero
+         ZPJ(L,RXN_JNITSa,I,J) = 0.0_fp
+         ZPJ(L,RXN_JNITSb,I,J) = 0.0_fp
+
       ENDIF
 
       ! Test if the UCX mechanism is being used

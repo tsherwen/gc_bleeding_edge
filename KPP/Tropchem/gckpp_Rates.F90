@@ -13,8 +13,8 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : gckpp_Rates.f90
-! Time                 : Thu Jul 19 13:05:49 2018
-! Working directory    : /n/home05/msulprizio/GC/Code.Dev/KPP/Tropchem
+! Time                 : Thu Nov 22 14:13:34 2018
+! Working directory    : /work/home/ts551/data/all_model_simulations/iodine_runs/iGEOSChem_7.1.1/Code.12.0.0/KPP/Tropchem
 ! Equation file        : gckpp.kpp
 ! Output root filename : gckpp
 ! 
@@ -1128,6 +1128,10 @@ SUBROUTINE Update_RCONST ( )
   RCONST(643) = (PHOTOL(112))
   RCONST(644) = (PHOTOL(113))
   RCONST(645) = (PHOTOL(114))
+  RCONST(646) = (PHOTOL(131))
+  RCONST(647) = (PHOTOL(132))
+  RCONST(648) = (PHOTOL(133))
+  RCONST(649) = (PHOTOL(134))
       
 END SUBROUTINE Update_RCONST
 
@@ -1250,6 +1254,10 @@ SUBROUTINE Update_PHOTO ( )
   RCONST(643) = (PHOTOL(112))
   RCONST(644) = (PHOTOL(113))
   RCONST(645) = (PHOTOL(114))
+  RCONST(646) = (PHOTOL(131))
+  RCONST(647) = (PHOTOL(132))
+  RCONST(648) = (PHOTOL(133))
+  RCONST(649) = (PHOTOL(134))
       
 END SUBROUTINE Update_PHOTO
 
